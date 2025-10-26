@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+
+    <!-- Только для пользователей с ролью ADMIN -->
+    <div sec:authorize="hasRole('ADMIN')">
+        <h1 class="mb-4">Панель администратора</h1>
+
+        <!-- Таблица всех пользователей -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">ID</td>
+                <td th:text="${user.username}">Username</td>
+                <td>
+                    <span th:each="role : ${user.roles}"
+                          th:text="${role.name} + ' '"></span>
+                </td>
+                <td>
+                    <!-- Ссылка на редактирование -->
+                    <a th:href="@{/admin/{id}/edit(id=${user.id})}"
+                       class="btn btn-sm btn-primary">Edit</a>
+
+                    <!-- Кнопка удаления -->
+                    <form th:action="@{/admin/{id}(id=${user.id})}"
+                          th:method="delete" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger ms-2">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Кнопка добавления нового пользователя -->
+        <a href="/admin/new" class="btn btn-success">Добавить пользователя</a>
+    </div>
+
+    <!-- Блок для тех, кто не админ -->
+    <div sec:authorize="!hasRole('ADMIN')">
+        <div class="alert alert-danger mt-4">
+            Доступ запрещен! Требуются права администратора.
+        </div>
+    </div>
+
+    <!-- Кнопка выхода -->
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn btn-danger mt-3">Выйти</button>
+    </form>
+</div>
+</body>
+</html>
